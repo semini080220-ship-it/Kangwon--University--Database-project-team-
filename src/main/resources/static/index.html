@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>삼척 분산 관광 · ecotour</title>
+<meta name="description" content="삼척의 쏠림을 풀고, 숨은 로컬 명소로 흩어지는 친환경·체험형 분산 관광 가이드" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="brand">
+    <span class="mark"><em>ecotour</em> 삼척</span>
+    <span class="sub">分散觀光 · DISTRIBUTED</span>
+  </div>
+  <div class="live"><span class="dot"></span> 실시간 혼잡 현황</div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <svg class="contour" viewBox="0 0 600 600" aria-hidden="true">
+    <path d="M300,40 C420,60 520,150 520,300 C520,460 410,560 300,560 C170,560 90,450 90,300 C90,160 200,30 300,40 Z"/>
+    <path d="M300,90 C400,110 470,180 470,300 C470,430 390,510 300,510 C200,510 140,420 140,300 C140,190 220,75 300,90 Z"/>
+    <path d="M300,150 C375,165 420,220 420,300 C420,390 360,455 300,455 C235,455 185,385 185,300 C185,225 240,140 300,150 Z"/>
+    <path d="M300,205 C350,215 375,255 375,300 C375,350 345,395 300,395 C258,395 230,350 230,300 C230,255 262,200 300,205 Z"/>
+    <path d="M300,255 C328,262 335,280 335,300 C335,330 322,350 300,350 C280,350 268,328 268,300 C268,278 282,250 300,255 Z"/>
+  </svg>
+
+  <div class="wrap">
+    <p class="eyebrow reveal" style="animation-delay:.05s">삼척시 · 친환경 체험형 가이드</p>
+    <h1 class="reveal" style="animation-delay:.15s">
+      <span class="accent">쏠리는</span> 관광을<br />
+      <span class="flow">흩어</span>놓다.
+    </h1>
+    <p class="lede reveal" style="animation-delay:.3s">
+      쏠비치·장호항에 몰린 발걸음을 무건리 이끼폭포, 초곡 촛대바위길 같은
+      한적한 로컬 명소로 분산합니다. 자연은 덜 지치고, 여행은 더 깊어집니다.
+    </p>
+
+    <div class="dist reveal" style="animation-delay:.45s">
+      <div>
+        <div class="dist-bar" id="distBar">
+          <span class="s-crowd" style="width:0"></span>
+          <span class="s-busy"  style="width:0"></span>
+          <span class="s-calm"  style="width:0"></span>
+        </div>
+        <div class="dist-legend" id="distLegend"></div>
+      </div>
+      <div class="dist-figure">
+        <div class="num" id="gemCount">0</div>
+        <div class="cap">숨은 로컬 명소</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BOARD ============ -->
+<section class="section" id="board">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="idx">01 — 혼잡 현황 보드</span>
+        <h2>지금, 어디로 갈까</h2>
+      </div>
+      <p>색은 혼잡도를 말합니다. 청록은 한적, 호박은 보통, 테라코타는 붐빔.
+         붐비는 곳을 누르면 한적한 대안이 펼쳐집니다.</p>
+    </div>
+    <div class="filters" id="filters"></div>
+    <div class="grid" id="cards"></div>
+  </div>
+</section>
+
+<!-- ============ COURSES ============ -->
+<section class="section" id="courses">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="idx">02 — 테마 분산 코스</span>
+        <h2>흐름을 디자인한 길</h2>
+      </div>
+      <p>붐비는 한 점이 아니라, 한적한 점들을 잇는 동선. 스탬프를 모으며 자연스레 분산됩니다.</p>
+    </div>
+    <div class="rail" id="rail"></div>
+  </div>
+</section>
+
+<!-- ============ CONCEPT ============ -->
+<section class="section concept">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow">왜 분산인가</span>
+      <h2>한 곳의 과잉은<br />모두의 손해다.</h2>
+      <p>특정 명소로의 쏠림은 혼잡과 생태 훼손, 지역 불균형을 부릅니다.
+         ecotour는 실시간 혼잡도를 읽어 사람의 흐름을 한적한 로컬 명소로 분산시키고,
+         친환경 활동을 인증할수록 보상하는 구조로 보존을 유도합니다.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><span class="n">1</span><div><b>혼잡을 읽는다</b><span>관광지마다 실시간 혼잡도(한적·보통·붐빔)를 표시.</span></div></div>
+      <div class="step"><span class="n">2</span><div><b>대안을 펼친다</b><span>붐비는 곳 대신 같은 결의 한적한 로컬 명소를 추천.</span></div></div>
+      <div class="step"><span class="n">3</span><div><b>흐름을 잇는다</b><span>테마 코스와 스탬프로 분산 동선을 자연스럽게 유도.</span></div></div>
+      <div class="step"><span class="n">4</span><div><b>보존에 보답한다</b><span>쓰레기 줍기 등 친환경 활동을 인증·집계.</span></div></div>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <div class="mark"><em>ecotour</em> 삼척 분산 관광</div>
+      <small>Spring Boot REST · 친환경/체험형 분산 관광 가이드 시스템</small>
+    </div>
+    <small class="api-state" id="apiState"><span class="d"></span> <span id="apiText">데모 데이터</span></small>
+  </div>
+</footer>
+
+<!-- ============ DRAWER ============ -->
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true"></aside>
+
+<script src="app.js"></script>
+</body>
+</html>
