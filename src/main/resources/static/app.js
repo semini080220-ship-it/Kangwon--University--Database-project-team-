@@ -167,15 +167,18 @@ function renderCourses() {
 /* -------------------- drawer -------------------- */
 const drawer = $('#drawer');
 const scrim = $('#scrim');
+let currentAttractionId = null; // 현재 드로어가 보여주는 관광지 — 비동기 응답이 엉뚱한 곳에 그리는 것 방지
 
 function openDrawer(att) {
   if (!att) return;
+  currentAttractionId = att.id;
   drawer.innerHTML = drawerHTML(att);
   drawer.classList.add('open');
   scrim.classList.add('open');
   drawer.setAttribute('aria-hidden', 'false');
   bindDrawer(att);
   loadAlternatives(att);
+  loadComments(att);
 }
 function closeDrawer() {
   drawer.classList.remove('open');
@@ -219,6 +222,24 @@ function drawerHTML(a) {
         <svg class="flow-svg" id="flowSvg"></svg>
         <div class="flow-nodes" id="flowNodes"></div>
       </div>
+
+      <div class="comments" id="comments" role="region" aria-label="방문자 댓글">
+        <div class="flow-title">
+          <h4 class="serif">방문자 댓글</h4>
+          <span class="ccount" id="cCount"></span>
+        </div>
+        <form class="cform" id="cForm" autocomplete="off" novalidate aria-label="댓글 작성">
+          <label class="sr-only" for="cAuthor">닉네임</label>
+          <input class="cname" id="cAuthor" type="text" maxlength="50"
+                 placeholder="닉네임" aria-label="닉네임" />
+          <label class="sr-only" for="cContent">댓글 내용</label>
+          <textarea class="ctext" id="cContent" rows="2" maxlength="1000"
+                    placeholder="이곳의 한적함은 어땠나요? 댓글을 남겨보세요." aria-label="댓글 내용"></textarea>
+          <button class="csubmit" type="submit" aria-label="댓글 남기기">남기기</button>
+        </form>
+        <p class="cerr" id="cErr" role="alert" aria-live="assertive"></p>
+        <ul class="clist" id="cList" aria-live="polite" aria-busy="false"></ul>
+      </div>
     </div>`;
 }
 
@@ -226,6 +247,8 @@ function bindDrawer(att) {
   $('#closeBtn').addEventListener('click', closeDrawer);
   $('#congSeg').querySelectorAll('button').forEach((b) =>
     b.addEventListener('click', () => setCongestion(att, b.dataset.lv)));
+  const cForm = $('#cForm');
+  if (cForm) cForm.addEventListener('submit', (e) => { e.preventDefault(); submitComment(att); });
 }
 
 /* -------------------- alternatives (분산 흐름) -------------------- */
@@ -330,6 +353,135 @@ async function setCongestion(att, level) {
   $('#congSeg').querySelectorAll('button').forEach((b) =>
     b.setAttribute('data-on', b.dataset.lv === level ? 1 : 0));
   loadAlternatives(att);
+}
+
+/* -------------------- comments (방문자 댓글) -------------------- */
+function fmtDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  const p = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}.${p(d.getMonth() + 1)}.${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+/**
+ * 댓글 한 개를 DOM 노드로 생성. 작성자·내용은 textContent 로만 넣어
+ * 브라우저가 사용자 입력을 HTML 로 파싱하지 않게 한다 (저장형 XSS 원천 차단).
+ */
+function commentEl(c) {
+  const li = document.createElement('li');
+  li.className = 'citem' + (c._local ? ' local' : '');
+
+  const head = document.createElement('div');
+  head.className = 'chead';
+  const who = document.createElement('b');
+  who.textContent = c.author;
+  const when = document.createElement('time');
+  when.textContent = fmtDate(c.createdAt);
+  head.append(who, when);
+
+  const body = document.createElement('p');
+  body.textContent = c.content;
+
+  li.append(head, body);
+  return li;
+}
+
+function renderComments(list, attractionId) {
+  // 비동기 응답이 도착했을 때 사용자가 이미 다른 관광지로 넘어갔으면 그리지 않는다 (race 방지)
+  if (attractionId != null && attractionId !== currentAttractionId) return;
+  const wrap = $('#cList');
+  if (!wrap) return; // 드로어가 닫혔거나 다른 장소로 바뀜
+  const safe = Array.isArray(list) ? list : [];
+  const cnt = $('#cCount');
+  if (cnt) {
+    cnt.textContent = safe.length ? String(safe.length) : '';
+    cnt.setAttribute('aria-label', `댓글 ${safe.length}개`);
+  }
+
+  wrap.replaceChildren();
+  if (!safe.length) {
+    const empty = document.createElement('li');
+    empty.className = 'cempty';
+    empty.textContent = '아직 댓글이 없어요. 첫 댓글을 남겨보세요.';
+    wrap.appendChild(empty);
+    return;
+  }
+  safe.forEach((c) => wrap.appendChild(commentEl(c)));
+}
+
+async function loadComments(att) {
+  const attId = att.id;
+  const wrap = $('#cList');
+  if (wrap) wrap.setAttribute('aria-busy', 'true');
+
+  let list = att._comments || null;
+  if (state.apiLive) {
+    try {
+      const res = await fetch(`/api/attractions/${attId}/comments`, { headers: { Accept: 'application/json' } });
+      if (res.ok) { list = await res.json(); att._comments = list; }
+    } catch (e) { /* keep cached/empty */ }
+  }
+  renderComments(list || att._comments || [], attId);
+
+  if (attId === currentAttractionId) {
+    const w = $('#cList');
+    if (w) w.setAttribute('aria-busy', 'false');
+  }
+}
+
+let commentSubmitting = false; // 전송 중 재진입(엔터 연타 등) 방지
+
+async function submitComment(att) {
+  if (commentSubmitting) return;
+  const authorEl = $('#cAuthor');
+  const contentEl = $('#cContent');
+  const errEl = $('#cErr');
+  const form = $('#cForm');
+  const btn = form ? form.querySelector('.csubmit') : null;
+  if (!authorEl || !contentEl) return;
+
+  const author = authorEl.value.trim();
+  const content = contentEl.value.trim();
+  if (errEl) errEl.textContent = '';
+  if (!author) { if (errEl) errEl.textContent = '닉네임을 입력해 주세요.'; authorEl.focus(); return; }
+  if (!content) { if (errEl) errEl.textContent = '댓글 내용을 입력해 주세요.'; contentEl.focus(); return; }
+
+  commentSubmitting = true;
+  if (btn) btn.disabled = true;
+  try {
+    if (state.apiLive) {
+      const res = await fetch(`/api/attractions/${att.id}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ author, content }),
+      });
+      if (!res.ok) {
+        let msg = '댓글을 저장하지 못했어요.';
+        if (res.status === 404) msg = '관광지를 찾을 수 없어요. 페이지를 새로고침 해주세요.';
+        else if (res.status >= 500) msg = '서버 오류예요. 잠시 후 다시 시도해 주세요.';
+        else { try { const e = await res.json(); if (e && e.message) msg = e.message; } catch (_) { /* keep default */ } }
+        if (errEl) errEl.textContent = msg;
+        return;
+      }
+      const created = await res.json();
+      att._comments = [created, ...(att._comments || [])];
+    } else {
+      // 데모/오프라인 모드: 서버 없이 임시 표시만
+      att._comments = [
+        { author, content, createdAt: new Date().toISOString(), _local: true },
+        ...(att._comments || []),
+      ];
+      if (errEl) errEl.textContent = '데모 모드 — 임시로만 표시됩니다 (실시간 API 연결 시 저장).';
+    }
+    contentEl.value = '';
+    renderComments(att._comments, att.id);
+  } catch (e) {
+    if (errEl) errEl.textContent = '네트워크 오류로 저장하지 못했어요.';
+  } finally {
+    commentSubmitting = false;
+    if (btn) btn.disabled = false;
+  }
 }
 
 /* -------------------- init -------------------- */

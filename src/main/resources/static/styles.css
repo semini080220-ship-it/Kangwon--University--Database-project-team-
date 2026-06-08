@@ -306,6 +306,46 @@ body::after {
 .pill.calm { background: var(--calm); } .pill.busy { background: var(--busy); } .pill.crowd { background: var(--crowd); }
 .empty-alt { font-size: .86rem; color: var(--ink-soft); padding: 14px; border: 1px dashed var(--line); border-radius: var(--r); }
 
+/* comments / 방문자 댓글 */
+.comments { margin-top: 34px; padding-top: 26px; border-top: 1px solid var(--line); }
+.comments .ccount {
+  font-family: var(--mono); font-size: .68rem; color: var(--ocean);
+  background: rgba(13,90,82,.08); border: 1px solid var(--line-2);
+  padding: 2px 9px; border-radius: 20px;
+}
+.cform { display: flex; flex-direction: column; gap: 8px; margin: 14px 0 4px; }
+.cname, .ctext {
+  width: 100%; color: var(--ink); background: var(--paper-card);
+  border: 1px solid var(--line); border-radius: 5px; padding: 9px 12px;
+  font-family: var(--sans); font-size: .88rem; line-height: 1.5;
+}
+.cname { font-family: var(--mono); font-size: .8rem; }
+.ctext { resize: vertical; min-height: 42px; }
+.cname:focus, .ctext:focus { outline: none; border-color: var(--ocean); box-shadow: 0 0 0 3px rgba(13,90,82,.12); }
+.cname::placeholder, .ctext::placeholder { color: var(--ink-faint); }
+.csubmit {
+  align-self: flex-end; font-family: var(--mono); font-size: .76rem; letter-spacing: .04em;
+  padding: 8px 20px; border: 1px solid var(--ink); background: var(--ink); color: var(--paper);
+  border-radius: 30px; cursor: pointer; transition: .2s;
+}
+.csubmit:hover { background: var(--ocean); border-color: var(--ocean); }
+.csubmit:disabled { opacity: .45; cursor: default; }
+.cerr { min-height: 1.05em; font-size: .76rem; color: var(--crowd); margin: 2px 0 8px; }
+.clist { list-style: none; display: grid; gap: 12px; margin-top: 6px; }
+.citem { background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; }
+.citem.local { border-style: dashed; opacity: .82; }
+.chead { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 5px; }
+.chead b { font-family: var(--serif); font-size: 1.02rem; font-weight: 700; }
+.chead time { font-family: var(--mono); font-size: .62rem; color: var(--ink-faint); letter-spacing: .04em; flex: none; }
+.citem p { font-size: .88rem; color: var(--ink-soft); font-weight: 300; white-space: pre-wrap; overflow-wrap: anywhere; }
+.cempty { font-size: .84rem; color: var(--ink-soft); padding: 16px; border: 1px dashed var(--line); border-radius: var(--r); text-align: center; }
+
+/* 스크린리더 전용 라벨 (시각적으로 숨김, 접근성 유지) */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
 /* ============================================================ Footer */
 .foot { padding: 50px 0; border-top: 1px solid var(--line); }
 .foot .wrap { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; align-items: baseline; }
@@ -326,6 +366,14 @@ body::after {
   .wrap { padding: 0 18px; }
   .site-header { padding: 14px 18px; }
   .brand .sub { display: none; }
+}
+/* 모바일: 드로어 전체폭 + 댓글 입력 가독성(자동 줌 방지) */
+@media (max-width: 480px) {
+  .drawer { width: 100vw; }
+  .drawer-body { padding: 22px 18px 40px; }
+  .cname, .ctext { font-size: 16px; }   /* iOS 입력 시 자동 확대 방지 */
+  .ctext { resize: none; }
+  .csubmit { align-self: stretch; width: 100%; }
 }
 /* 동작 줄이기: 애니메이션을 끄지 않고 즉시 완료시켜 콘텐츠가 항상 보이도록 한다 */
 @media (prefers-reduced-motion: reduce) {

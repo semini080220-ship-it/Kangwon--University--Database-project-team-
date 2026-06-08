@@ -72,12 +72,13 @@ mvn test
 | 3. Spring 비즈니스 로직 | 계층형 구조 + 조건/예외 처리 + 분산 추천 등 복합 로직 |
 | 4. 협업·발표 | Git 버전관리, 본 README, 발표 시연 시나리오 |
 
-## 구현 현황 (모든 슬라이스 TDD 완료 · 52 tests GREEN)
+## 구현 현황 (모든 슬라이스 TDD 완료 · 64 tests GREEN)
 - [x] 관광지(Attraction) — CRUD, 실시간 혼잡도, **분산 관광 추천**
 - [x] 사용자(User) — 회원가입(이메일 중복 409), 선호 테마, 보유 스탬프 집계
 - [x] 스탬프 코스(Course/CourseDetail) — 테마별 경로, 방문 순서
 - [x] 방문/인증(VisitLog) — 스탬프(중복 409)·친환경 활동(반복 허용) 인증
 - [x] 리뷰/평점(Review) — 평점 1~5 검증, 관광지 평균 평점 집계
+- [x] 댓글(Comment) — 로그인 없이 닉네임+내용으로 각 관광지에 댓글, 최신순 조회 (프론트엔드 드로어 연동, XSS 방지 렌더링)
 
 ### 전체 API 요약
 | 도메인 | 엔드포인트 |
@@ -87,6 +88,7 @@ mvn test
 | 코스 | `POST/GET /api/courses`(`?theme=`), `GET /{id}` |
 | 방문·인증 | `POST /api/visits`, `GET /api/visits?userId=`, `GET /api/visits/stamp-count?userId=` |
 | 리뷰 | `POST /api/reviews`, `GET /api/reviews?attractionId=`, `GET /api/reviews/average?attractionId=` |
+| 댓글 | `POST /api/attractions/{id}/comments`, `GET /api/attractions/{id}/comments` |
 
 ## 남은 작업
 - [ ] Git 버전관리 (현재 git 미설치 — 설치 후 초기 커밋, 루브릭 4)
