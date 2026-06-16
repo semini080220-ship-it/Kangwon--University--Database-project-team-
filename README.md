@@ -5,6 +5,42 @@
 
 > P3L 기반 Spring 프로젝트 / **TDD(테스트 주도 개발)** 로 구현.
 
+## 🎬 원클릭 데모 (.exe · Windows)
+
+**Java 설치 없이** 아무 64-bit Windows PC에서 바로 실행되는 자체 실행 데모입니다(JRE 21 번들).
+
+➡️ **[최신 데모 내려받기 — Releases](https://github.com/semini080220-ship-it/Kangwon--University--Database-project-team-/releases/latest)**
+
+1. `ecotour-demo-win-x64.zip` 다운로드 → 압축 해제
+2. `EcotourDemo` 폴더 안의 **`EcotourDemo.exe`** 더블클릭
+3. 잠시 후 기본 브라우저로 데모가 **자동으로** 열립니다 → http://localhost:8080
+
+> 검은 콘솔 창이 서버입니다 — 닫으면 데모가 종료됩니다.
+> 처음 실행 시 Windows SmartScreen 경고가 뜨면 **추가 정보 → 실행**.
+
+<details><summary>직접 다시 빌드하려면 (jpackage)</summary>
+
+```powershell
+.\mvnw.cmd clean package          # fat jar 생성 (target/ecotour-0.0.1-SNAPSHOT.jar)
+jpackage --type app-image --name EcotourDemo `
+  --input target --main-jar ecotour-0.0.1-SNAPSHOT.jar `
+  --main-class org.springframework.boot.loader.launch.JarLauncher `
+  --java-options "-Ddemo.open-browser=true" --java-options "-Dserver.port=8080" `
+  --add-modules java.se,jdk.unsupported,jdk.crypto.ec --win-console `
+  --app-version 1.0.0 --dest dist
+```
+
+데모의 브라우저 자동 열기는 `demo.open-browser` 속성(기본값 `false`)으로 제어합니다 —
+일반 실행·테스트에는 영향이 없고, 배포된 .exe만 이 값을 켭니다.
+관련 코드: [`src/main/java/com/samcheok/ecotour/demo/`](src/main/java/com/samcheok/ecotour/demo)
+</details>
+
+## 📊 발표 자료
+
+- 발표 슬라이드(13장): [`삼척_분산관광_발표.pptx`](삼척_분산관광_발표.pptx)
+- 발표 대본 — 슬라이드 + 노트 13페이지: [`삼척_분산관광_발표_노트.pdf`](삼척_분산관광_발표_노트.pdf)
+  (대본은 `.pptx`의 슬라이드 노트에도 삽입되어 있어 PowerPoint 발표자 보기에서 바로 보입니다.)
+
 ## 기술 스택
 - Java 17 (빌드 JDK 24), Spring Boot 3.5.6, Maven
 - Spring Web, Spring Data JPA, Bean Validation, H2(in-memory)
